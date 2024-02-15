@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import * as BooksAPI from "./BooksAPI";
+import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import { HomePage } from "./HomePage";
+import { Search } from "./Search";
 
-function App() {
+const BooksApp = () => {
+  const [shelfBooks, setShelfBooks] = useState([]);
+
+  useEffect(() => {
+    BooksAPI.getAll().then((books) => {
+      setShelfBooks(books);
+    });
+  }, []);
+
+  const handleShelfChange = (book, shelf) => {
+    BooksAPI.update(book, shelf).then(() => {
+      BooksAPI.getAll().then((books) => {
+        setShelfBooks(books);
+      });
+    });
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              onShelfChange={handleShelfChange}
+              shelfBooks={shelfBooks}
+            />
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <Search onShelfChange={handleShelfChange} shelfBooks={shelfBooks} />
+          }
+        />
+      </Routes>
     </div>
   );
-}
+};
 
-export default App;
+export default BooksApp;
